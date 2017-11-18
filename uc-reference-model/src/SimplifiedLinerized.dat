@@ -1,0 +1,21 @@
+set ThermalGenerators := Unit1 Unit2;
+
+param NumTimePeriods := 5 ;
+
+param: MinimumPowerOutput MaximumPowerOutput  :=
+Unit1  300                1000
+Unit2  200                 400
+;
+
+param: Demand :=
+1   300
+2   400
+3   500
+4   700
+5   400
+;
+
+param: ProductionCostA0 ProductionCostA1 ProductionCostA2 :=
+Unit1  220  8.023 0.00158
+Unit2  400  7.654 0.00132
+;
