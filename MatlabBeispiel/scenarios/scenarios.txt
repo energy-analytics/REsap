@@ -1,0 +1,414 @@
+% ---------------- Base Scenarios ---------------    
+    % ---------------- Reference scenarios, coupled optimization-----------
+    case 'REF12' 
+        extraparams.forceFullLoadHours=[5010 825 1490 2400];  
+        P_0=P_0_12_Default;
+    case 'REF35' 
+        P_0=P_0_35_Default;
+    case 'REF50' 
+        P_0=P_0_50_Default;        
+    case 'REF15'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2015));
+    case 'REF20'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2020));
+    case 'REF25'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2025));
+    case 'REF30'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2030));
+    case 'REF40'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2040));
+    case 'REF45'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2045));        
+     % ----------------- Optimal scenarios -------------------------------  
+    case 'OPT35' 
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        P_0=[-1009 0 0 0 0 P_0_35_Default];    
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        extraparams.flexBalancing=1;
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                    
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;    
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];   
+    case 'OPT12'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        extraparams.forceFullLoadHours=[5010 800 1630 2400];
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2012));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];        
+    case 'OPT15'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2015));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];   
+    case 'OPT20'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2020));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];   
+    case 'OPT25'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2025));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];   
+    case 'OPT30'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+         P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2030));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];   
+    case 'OPT40'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2040));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];   
+    case 'OPT45'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2045));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];     
+    case 'OPT50'
+        names={'HPS','MVB','HWHafen','SpiVoWedel','SpiVoTiefstack',names{:}}; % add heat units and dsm option
+        types=[28,20,19,19,19,types];                                      
+        types(find(strcmp(names, 'WT')))=15;
+        types(find(strcmp(names, 'WW1')))=16;
+        names{find(strcmp(names, 'WW1'))}='GuDW';
+        types(find(strcmp(names, 'GuDTS')))=16;
+        extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+        extraparams.flexBalancing=1;                                         % Balancing power is traded in hourly resolution
+        extraparams.Pwindinertia=0.2/1.5/150e3/2e-3;                         % Grid time constant is supported by wind turbines (200kW/1.5MW/150GW/(0,2%) 
+        P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;...         
+        P_0_22_Default;P_0_35_Default;P_0_50_Default], 2050));
+        P_0=[-1009 0 0 0 0 P_0];                % Load shifting by heat pump systems
+        Q_0=nan(size(P_0));Q_0([2:5 8:10])=[115 340 180 320 290 180 220];
+        sites=nan(size(Q_0));sites([2:5 8:10])=[1 3 2 1 1 1 2];              % Sites: 1=East, 2=West, 3=Hafen, 4=WUW        
+        e_start=nan(size(types));
+        isSecBalUnit=nan(size(P_0));isSecBalUnit(find(types==26))=1; isSecBalUnit(1)=1;         % Renewable energies and curtailment can provide secondary balancing
+        extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];         
+% ---------------- Variation Study: Same park without CHPs ---------------                
+    case 'HPS12'
+       extraparams.forceFullLoadHours=[5010 800 1630 2400];
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2012));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS15'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2015));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS20'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2020));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS25'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2025));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS30'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2030));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS35'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2035));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS40'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2040));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS45'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2045));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+    case 'HPS50'
+       P_0=round(interp1([2012;2022;2035;2050], [P_0_12_Default;P_0_22_Default;P_0_35_Default;P_0_50_Default], 2050));
+       P_0=[-1009 P_0];names=[{'WP'} names];types=[28 types];
+       extraparams.dss{1}.p_load={'p_load_hps.txt'}; 
+       extraparams.reorderResultFile=[2:length(P_0(P_0~=0)), 1];Q_0=nan(size(types));
+       e_start=nan(size(types));sites=nan(size(types));isSecBalUnit=nan(size(types));
+
+% ---------------- Power-2-Heat Scenarios ---------------    
+    case 'REF35PtH' 
+        names={'PtH', 'MVB','HWHafen','SpiVoWedel','SpiVoTiefstack', 'NUK' 'BK', 'WT', 'GuDTS' 'GuDWW','SKEL', 'GuD' 'GT1' 'GT2' 'GT3' 'OIL', 'GAR','BM','PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore', 'Curtailment', 'Import'};
+        types=[12, 11,11,11,11,1,2,4,22,22,3,7,8,8,8,7,1,9,15,16,17,17,17,17,18,23];        
+        %names={'NUK' 'BK', 'WT', 'GuDTS' 'WW1', 'WW2','SKEL', 'GuD' 'GT1' 'GT2' 'GT3' 'OIL','OILGT' 'GAR','BM','PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore', 'Curtailment', 'Import'};
+        %types=[1,2,3,7,4,5,6,7,8,8,8,7,8,1,9,10,11,14,14,14,14,15,19];        
+        P_0=[-100 0 0 0 0 225 206 125 470 66 197 72 71 70 20 0 39 231 306 -306 101 1444 2140 446 -1e3 1e3];    
+        Q_0=nan(size(P_0));
+        Q_0([1:5 8:10])=[100 115 340 180 320 290 180 220];
+        e_start=nan(size(P_0));
+        e_start(18)=2;
+        sites=nan(size(Q_0));
+        % Sites: 1=East, 2=West, 3=Hafen, 4=WUW
+        sites([1:5 8:10])=[2 1 3 2 1 1 1 2];
+        % Set production cost of garbage plants to zero
+        c_prod=nan(size(Q_0));c_prod([2 18])=0;          
+    case 'REF35Stor' 
+        names={'StorEastOut','StorEastIn', 'MVB','HWHafen','SpiVoWedel','SpiVoTiefstack', 'NUK' 'BK', 'WT', 'GuDTS' 'GuDWW','SKEL', 'GuD' 'GT1' 'GT2' 'GT3' 'OIL', 'GAR','BM','PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore', 'Curtailment', 'Import'};
+        types=[13,14, 11,11,11,11,1,2,4,22,22,3,7,8,8,8,7,1,9,15,16,17,17,17,17,18,23];        
+        %names={'NUK' 'BK', 'WT', 'GuDTS' 'WW1', 'WW2','SKEL', 'GuD' 'GT1' 'GT2' 'GT3' 'OIL','OILGT' 'GAR','BM','PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore', 'Curtailment', 'Import'};
+        %types=[1,2,3,7,4,5,6,7,8,8,8,7,8,1,9,10,11,14,14,14,14,15,19];        
+        P_0=[0 0 0 0 0 0 225 206 125 470 66 197 72 71 70 20 0 39 231 306 -306 101 1444 2140 446 -3e3 3e3];    
+        Q_0=nan(size(P_0));
+        Q_0([1:6 9:11])=[100 -100 115 340 180 320 290 180 220];
+        e_start=nan(size(P_0));
+        e_start([1 19])=[19/2 2];
+        sites=nan(size(Q_0));
+        % Sites: 1=East, 2=West, 3=Hafen, 4=WUW
+        sites([1:6 9:11])=[1 1 1 3 2 1 1 1 2];
+        % Set production cost of garbage plants to zero
+        c_prod=nan(size(Q_0));c_prod([3 19])=0;                  
+% ---------------- Simple Test scenarios ---------------     
+    case 'REF12-4sites' 
+        names={'PtHWest' 'WUWSpaldingStr' 'HWHafen' 'NUK', 'BK', 'WT','WTPeak', 'WW1','WW2','SpiVoWedel', 'SKEL' 'CCP', 'GT','OIL', 'GAR','BM','PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore'};
+        types=[12 11 11 1 2 4 11 5 6 11 3 7 8 1 1 9 15 16 17 17 17 17];
+        P_0=[nan nan 300 525 194 nan 150 137 nan 175 527 141 99 39 157 154 -154 106 798 747 7];
+        Q_0=nan(size(P_0));
+        Q_0([1 2 5 6 7 8 9])=[100 340 290 320 220 165 250];
+        e_start=nan(size(P_0));
+        e_start(16)=2;
+        sites=nan(size(Q_0));
+        % Sites: 1=East, 2=West, 3=Hafen, 4=WUW
+        sites([1 2 5 6 7 8 9])=[4 3 1 1 2 2 2];
+    case 'MINEL' % Rein elektrisches Minimalszenario, PS hat keine mindestlast und Kapazität von 24 Stunden
+        names={'PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore'};
+        types=[15 16 17 17 17 17];
+        P_0=[3e3 -3e3 106 798 747 7];
+        Q_0=nan(size(P_0));
+        e_start=[3*24 nan(1, length(P_0)-1)];
+        typeparams(15).e_max=7*24;                                                     % Maximum Storage energy level in hours (E_max/P_0)
+        typeparams(15).e_min=0;
+        extraparams.filename_electricLoad='ElectricDemandHH.txt';
+    case 'MINTH' % Rein thermisches Minimalszenario, Nur Spiteznalastkessel ohne Mindestalast
+        names={'Gaskessel' 'Noch ein Gaskessel'};
+        types=[11 11];
+        P_0=nan(size(types));
+        Q_0=[3e3 1e2];
+        e_start=nan(size(Q_0));        
+        c_prod=[20 10];  
+        sites=[1 1];
+        extraparams.filename_electricLoad='ElectricDemand.txt';
+        extraparams.filename_heatLoad='HeatDemand.txt';
+    case 'MINELplusCHP_priConstr' % funktioniert nicht, weil nur WT Primärregelleistung macht und die Constraints so eng sind, dass die 11 MW nicht möglich sind
+        names={'WT', 'PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore'};
+        types=[19 15 16 17 17 17 17];
+        P_0=[194 3e3 -3e3 106 798 747 7];
+        Q_0=nan(size(P_0));
+        e_start=[nan 3*24 nan(1, 5)];
+        typeparams(15).e_max=7*24;                                                     % Maximum Storage energy level in hours (E_max/P_0)
+        typeparams(15).e_min=0;
+        extraparams.filename_electricLoad='ElectricDemand.txt';
+        extraparams.filename_heatLoad='HeatDemand.txt';
+
+    case 'MINELplusCHPnew' % funktioniert nicht, aber warum?
+        names={'WT','SLK', 'PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore'};
+        types=[4 11 15 16 17 17 17 17];
+        P_0=[194 0 3e3 -3e3 106 798 747 7];
+        Q_0=[300 300 nan(1,length(P_0)-2)];
+        e_start=[nan nan 3*24 nan(1, 5)];
+        typeparams(15).e_max=7*24;                                                     % Maximum Storage energy level in hours (E_max/P_0)
+        typeparams(15).e_min=0;
+        extraparams.filename_electricLoad='ElectricDemand.txt';
+        extraparams.filename_heatLoad='HeatDemand.txt';     
+        extraparams.P_Pri=0;                                                       % Primary reserve demand (=3000 MW * 12,872 TWh / 3383,128 TWh )
+    case 'MINELplusCHP' % funktioniert 
+        names={'WT', 'PS_T', 'PS_P', 'ROW','PV','Onshore','Offshore'};
+        types=[19 15 16 17 17 17 17];
+        P_0=[194 3e3 -3e3 106 798 747 7];
+        Q_0=nan(size(P_0));
+        e_start=[nan 3*24 nan(1, 5)];
+        typeparams(15).e_max=7*24;                                                     % Maximum Storage energy level in hours (E_max/P_0)
+        typeparams(15).e_min=0; 
+        extraparams.P_Pri=0;                                                       % Primary reserve demand (=3000 MW * 12,872 TWh / 3383,128 TWh )
+        extraparams.filename_electricLoad='ElectricDemand.txt';
+        extraparams.filename_heatLoad='HeatDemand.txt';     
+% ---------------- Sensibility analysis ---------------            
+scenarios={...
+'REF50profile2015',...
+'REF50profile2014',...
+'REF50profile2012',...
+'REF50profile2011',...
+};
+
+% -------------------------
+   case 'REF50profile2015' 
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400];
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');
+   case 'REF50profile2014' 
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400];
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2014_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2014_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2014_Tennet_Offshore_900s.txt');
+   case 'REF50profile2012' 
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400];
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2012_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2012_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2012_Tennet_Offshore_900s.txt');
+   case 'REF50profile2011' 
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400];
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2011_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2011_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2011_Tennet_Offshore_900s.txt');
+
+
+    % ---------------- Sensibility analysis (Profiles, scaled by energy)-----------   
+   case 'REF50flhM30'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(1);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');        
+   case 'REF50flhM20'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(2);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');        
+   case 'REF50flhM10'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(3);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');        
+   case 'REF50flh0'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(4);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');        
+   case 'REF50flhP10'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(5);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');        
+   case 'REF50flhP20'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(6);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');        
+   case 'REF50flhP30'               
+        P_0=P_0_50_Default;  
+        extraparams.forceFullLoadHours=[5010 825 1490 2400]*variants(7);
+        extraparams.filename_PVProfile=strcat(datapath, 'REProfiles/Solar2015_Gesamt_900s.txt');
+        extraparams.filename_WindProfile=strcat(datapath, 'REProfiles/Wind2015_Tennet_Onshore_900s.txt');
+        extraparams.filenameWindOffshore=strcat(datapath, 'REProfiles/Wind2015_Tennet_Offshore_900s.txt');  

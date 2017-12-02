@@ -1,0 +1,32 @@
+function smoothRamps(filename, filepath)
+clear variables;clc;close all;
+%
+orig=modelicaread(strcat(filepath, filename));
+Nres=2+(length(orig.time)-2)*2;
+newdat=zeros(Nres,size(orig.data, 2));
+newtime=zeros(Nres, 1);
+newdat([1,end],:)=orig.data([1,end],:);
+newtime([1,end])=orig.time([1,end]);
+%
+DT=5*60;
+j=2;
+for i=2:length(newtime)-1
+    if ~mod(i,2)
+        newtime(i)=orig.time(j)-DT;
+        newdat(i,:)=orig.data(j-1,:);
+    else
+        newtime(i)=orig.time(j)+DT;
+        newdat(i,:)=orig.data(j,:);
+        j=j+1;    
+    end    
+end
+toc
+%
+result=timeseries(newdat, newtime);
+stairs(orig.time, orig.data(:,12),'-o');
+hold on;
+plot(result.time, result.data(:,12),'-x');
+xlim([0 12*3600])
+legend('orig','rampsmoothed (raw)')
+%
+modelicawrite(strcat(filepath, strrep(filename, 's_','s_smoothed_')), result);
